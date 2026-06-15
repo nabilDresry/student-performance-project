@@ -2,80 +2,75 @@ import streamlit as st
 import pickle
 import numpy as np
 
+# Konfigurasi halaman
+st.set_page_config(
+    page_title="Prediksi Prestasi Akademik Siswa",
+    page_icon="🎓",
+    layout="wide"
+)
+
 # Load model dan scaler
-model = pickle.load(open('model.pkl', 'rb'))
-scaler = pickle.load(open('scaler.pkl', 'rb'))
+model = pickle.load(open("model.pkl", "rb"))
+scaler = pickle.load(open("scaler.pkl", "rb"))
 
-st.title("Prediksi Prestasi Akademik Siswa")
+# Header
+st.markdown("""
+# 🎓 Prediksi Prestasi Akademik Siswa
+### Menggunakan Metode Supervised Learning
 
-st.write("Masukkan data siswa untuk memprediksi GPA")
+Masukkan data siswa untuk memprediksi nilai GPA.
+""")
 
-# INPUT TANPA DESIMAL
+st.divider()
 
-age = st.number_input(
-    "Usia",
-    min_value=15,
-    max_value=25,
-    value=17,
-    step=1,
-    format="%d"
-)
+# Layout 2 kolom
+col1, col2 = st.columns(2)
 
-study_time = st.number_input(
-    "Jam Belajar per Minggu",
-    min_value=0,
-    max_value=50,
-    value=10,
-    step=1,
-    format="%d"
-)
+with col1:
+    st.subheader("📚 Faktor Akademik")
 
-absences = st.number_input(
-    "Jumlah Ketidakhadiran",
-    min_value=0,
-    max_value=50,
-    value=5,
-    step=1,
-    format="%d"
-)
+    age = st.slider("Usia", 15, 25, 17)
 
-parental_support = st.number_input(
-    "Dukungan Orang Tua (0-4)",
-    min_value=0,
-    max_value=4,
-    value=2,
-    step=1,
-    format="%d"
-)
+    study_time = st.slider(
+        "Jam Belajar per Minggu",
+        0, 40, 10
+    )
 
-activity_score = st.number_input(
-    "Activity Score",
-    min_value=0,
-    max_value=10,
-    value=2,
-    step=1,
-    format="%d"
-)
+    absences = st.slider(
+        "Jumlah Ketidakhadiran",
+        0, 30, 5
+    )
 
-academic_engagement = st.number_input(
-    "Academic Engagement",
-    min_value=0,
-    max_value=50,
-    value=5,
-    step=1,
-    format="%d"
-)
+with col2:
+    st.subheader("⭐ Faktor Pendukung")
 
-# Prediksi
-if st.button("Prediksi GPA"):
+    parental_support = st.slider(
+        "Dukungan Orang Tua",
+        0, 4, 2
+    )
+
+    activity_score = st.slider(
+        "Activity Score",
+        0, 10, 3
+    )
+
+    academic_engagement = st.slider(
+        "Academic Engagement",
+        0, 20, 5
+    )
+
+st.divider()
+
+# Tombol Prediksi
+if st.button("🔍 Prediksi GPA", use_container_width=True):
 
     data = np.array([
         age,
         study_time,
         absences,
         parental_support,
-        activity_score,
-        academic_engagement
+        academic_engagement,
+        activity_score
     ]).reshape(1, -1)
 
     data = scaler.transform(data)
@@ -83,5 +78,15 @@ if st.button("Prediksi GPA"):
     prediksi = model.predict(data)
 
     st.success(
-        f"Prediksi GPA: {prediksi[0]:.2f}"
+        f"🎯 Prediksi GPA Siswa: {prediksi[0]:.2f}"
     )
+
+    if prediksi[0] >= 3.5:
+        st.balloons()
+        st.info("Kategori: Prestasi Sangat Baik")
+    elif prediksi[0] >= 3.0:
+        st.info("Kategori: Prestasi Baik")
+    elif prediksi[0] >= 2.0:
+        st.warning("Kategori: Prestasi Cukup")
+    else:
+        st.error("Kategori: Perlu Pendampingan Belajar")
