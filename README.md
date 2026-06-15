@@ -2,7 +2,7 @@
 
 ## Deskripsi
 
-Proyek ini bertujuan untuk memprediksi prestasi akademik siswa (GPA) berdasarkan faktor akademik dan aktivitas non-akademik menggunakan metode Supervised Learning.
+Proyek ini bertujuan untuk Memprediksi Prestasi Akademik Siswa Berdasarkan Faktor Akademik, dan Aktivitas Non-Akademik Menggunakan Metode Supervised Learning.
 
 ## Dataset
 
