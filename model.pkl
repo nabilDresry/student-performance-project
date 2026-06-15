@@ -1,10 +1,1 @@
-X = df[
-    [
-        'Age',
-        'StudyTimeWeekly',
-        'Absences',
-        'ParentalSupport',
-        'Academic_Engagement',
-        'Activity_Score'
-    ]
-]
+
