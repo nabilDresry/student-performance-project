@@ -119,8 +119,8 @@ Mengukur besar kesalahan prediksi dengan memberikan penalti lebih besar terhadap
 | Metrik | Nilai |
 |---------|---------|
 | R² Score | 0.92 |
-| MAE | 0.11 |
-| RMSE | 0.18 |
+| MAE | 0.20 |
+| RMSE | 0.25 |
 
 *Sesuaikan nilai di atas dengan hasil evaluasi model yang diperoleh.*
 
