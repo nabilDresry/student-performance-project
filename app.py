@@ -100,12 +100,12 @@ st.sidebar.metric(
 
 st.sidebar.metric(
     "MAE",
-    "0.11"
+    "0.20"
 )
 
 st.sidebar.metric(
     "RMSE",
-    "0.18"
+    "0.25"
 )
 
 st.sidebar.markdown("---")
@@ -312,7 +312,7 @@ st.markdown("---")
 st.markdown("""
 <center>
 
-<b>Universitas Halu Oleo</b><br>
+<b>Telkom University</b><br>
 Mata Kuliah AI dan Big Data<br>
 Prediksi Prestasi Akademik Siswa
 
