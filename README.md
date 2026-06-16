@@ -213,11 +213,12 @@ Universitas : Telkom University
 
 GitHub Repository:
 
-[Tambahkan Link Repository GitHub]
+[[Tambahkan Link Repository GitHub]
+](https://github.com/nabilDresry/student-performance-project)
 
 Streamlit Application:
 
-[Tambahkan Link Streamlit]
+(https://student-performance-project-lgmwgcpjfci54tdx67mhcw.streamlit.app/)
 
 ---
 
