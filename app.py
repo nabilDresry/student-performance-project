@@ -174,6 +174,7 @@ st.sidebar.write(
 st.sidebar.success("Model: Random Forest Regression")
 
 # GANTI DENGAN HASIL EVALUASI DARI COLAB
-st.sidebar.write("R² Score : isi_hasil_anda")
-st.sidebar.write("MAE : isi_hasil_anda")
-st.sidebar.write("RMSE : isi_hasil_anda")
+st.sidebar.write("R² Score : 0.67")
+st.sidebar.write("MAE : 0.34")
+st.sidebar.write("RMSE : 0.61")
+st.sidebar.write("MSE : 0.37")
