@@ -2,43 +2,63 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# Konfigurasi halaman
+# =========================
+# KONFIGURASI HALAMAN
+# =========================
+
 st.set_page_config(
     page_title="Prediksi Prestasi Akademik Siswa",
     page_icon="🎓",
     layout="wide"
 )
 
-# Load model dan scaler
+# =========================
+# LOAD MODEL
+# =========================
+
 model = pickle.load(open("model.pkl", "rb"))
 scaler = pickle.load(open("scaler.pkl", "rb"))
 
-# Header
-st.markdown("""
-# 🎓 Prediksi Prestasi Akademik Siswa
-### Menggunakan Metode Supervised Learning
+# =========================
+# HEADER
+# =========================
 
-Masukkan data siswa untuk memprediksi nilai GPA.
+st.title("🎓 Prediksi Prestasi Akademik Siswa")
+st.markdown("""
+Aplikasi ini memprediksi **GPA siswa** berdasarkan faktor akademik
+dan aktivitas non-akademik menggunakan metode **Supervised Learning**.
 """)
 
 st.divider()
 
-# Layout 2 kolom
+# =========================
+# INPUT DATA
+# =========================
+
 col1, col2 = st.columns(2)
 
 with col1:
     st.subheader("📚 Faktor Akademik")
 
-    age = st.slider("Usia", 15, 25, 17)
+    age = st.slider(
+        "Usia Siswa",
+        min_value=15,
+        max_value=25,
+        value=17
+    )
 
     study_time = st.slider(
         "Jam Belajar per Minggu",
-        0, 40, 10
+        min_value=0,
+        max_value=40,
+        value=10
     )
 
     absences = st.slider(
         "Jumlah Ketidakhadiran",
-        0, 30, 5
+        min_value=0,
+        max_value=30,
+        value=5
     )
 
 with col2:
@@ -46,22 +66,58 @@ with col2:
 
     parental_support = st.slider(
         "Dukungan Orang Tua",
-        0, 4, 2
+        min_value=0,
+        max_value=4,
+        value=2
     )
 
-    activity_score = st.slider(
-        "Activity Score",
-        0, 10, 3
-    )
+    extracurricular = st.checkbox("Mengikuti Ekstrakurikuler")
 
-    academic_engagement = st.slider(
-        "Academic Engagement",
-        0, 20, 5
-    )
+    sports = st.checkbox("Mengikuti Kegiatan Olahraga")
+
+    music = st.checkbox("Mengikuti Kegiatan Musik")
+
+    volunteering = st.checkbox("Mengikuti Kegiatan Sosial")
+
+# =========================
+# FEATURE ENGINEERING
+# =========================
+
+activity_score = (
+    int(extracurricular)
+    + int(sports)
+    + int(music)
+    + int(volunteering)
+)
+
+academic_engagement = (
+    study_time / (absences + 1)
+)
+
+# =========================
+# TAMPILKAN FITUR HASIL
+# =========================
 
 st.divider()
 
-# Tombol Prediksi
+st.subheader("📊 Hasil Feature Engineering")
+
+c1, c2 = st.columns(2)
+
+c1.metric(
+    "Academic Engagement",
+    f"{academic_engagement:.2f}"
+)
+
+c2.metric(
+    "Activity Score",
+    activity_score
+)
+
+# =========================
+# PREDIKSI
+# =========================
+
 if st.button("🔍 Prediksi GPA", use_container_width=True):
 
     data = np.array([
@@ -77,34 +133,47 @@ if st.button("🔍 Prediksi GPA", use_container_width=True):
 
     prediksi = model.predict(data)
 
-gpa = float(prediksi[0])
+    gpa = float(prediksi[0])
 
-st.success(f"🎯 Prediksi GPA: {gpa:.2f}")
+    st.divider()
 
-if gpa >= 3.5:
-    st.success("🏆 Kategori: Prestasi Sangat Baik")
-elif gpa >= 3.0:
-    st.info("📚 Kategori: Prestasi Baik")
-elif gpa >= 2.0:
-    st.warning("⚠️ Kategori: Prestasi Cukup")
-else:
-    st.error("❌ Kategori: Perlu Pendampingan Belajar")
+    st.subheader("🎯 Hasil Prediksi")
 
-st.progress(min(gpa / 4.0, 1.0))
-    if prediksi[0] >= 3.5:
+    st.metric(
+        "Prediksi GPA",
+        f"{gpa:.2f}"
+    )
+
+    st.progress(
+        min(gpa / 4.0, 1.0)
+    )
+
+    if gpa >= 3.5:
+        st.success("🏆 Kategori Prestasi: Sangat Baik")
         st.balloons()
-        st.info("Kategori: Prestasi Sangat Baik")
-    elif prediksi[0] >= 3.0:
-        st.info("Kategori: Prestasi Baik")
-    elif prediksi[0] >= 2.0:
-        st.warning("Kategori: Prestasi Cukup")
-    else:
-        st.error("Kategori: Perlu Pendampingan Belajar")
 
-st.sidebar.header("📊 Performa Model")
+    elif gpa >= 3.0:
+        st.info("📘 Kategori Prestasi: Baik")
+
+    elif gpa >= 2.0:
+        st.warning("📙 Kategori Prestasi: Cukup")
+
+    else:
+        st.error("📕 Kategori Prestasi: Perlu Pendampingan")
+
+# =========================
+# INFORMASI MODEL
+# =========================
+
+st.sidebar.header("📈 Informasi Model")
+
+st.sidebar.write(
+    "Model digunakan untuk memprediksi GPA siswa berdasarkan faktor akademik dan aktivitas non-akademik."
+)
 
 st.sidebar.success("Model: Random Forest Regression")
 
-st.sidebar.write("R² Score : 0.87")
-st.sidebar.write("MAE : 0.15")
-st.sidebar.write("RMSE : 0.22")
+# GANTI DENGAN HASIL EVALUASI DARI COLAB
+st.sidebar.write("R² Score : isi_hasil_anda")
+st.sidebar.write("MAE : isi_hasil_anda")
+st.sidebar.write("RMSE : isi_hasil_anda")
