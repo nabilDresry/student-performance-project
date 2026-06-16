@@ -77,10 +77,20 @@ if st.button("🔍 Prediksi GPA", use_container_width=True):
 
     prediksi = model.predict(data)
 
-    st.success(
-        f"🎯 Prediksi GPA Siswa: {prediksi[0]:.2f}"
-    )
+gpa = float(prediksi[0])
 
+st.success(f"🎯 Prediksi GPA: {gpa:.2f}")
+
+if gpa >= 3.5:
+    st.success("🏆 Kategori: Prestasi Sangat Baik")
+elif gpa >= 3.0:
+    st.info("📚 Kategori: Prestasi Baik")
+elif gpa >= 2.0:
+    st.warning("⚠️ Kategori: Prestasi Cukup")
+else:
+    st.error("❌ Kategori: Perlu Pendampingan Belajar")
+
+st.progress(min(gpa / 4.0, 1.0))
     if prediksi[0] >= 3.5:
         st.balloons()
         st.info("Kategori: Prestasi Sangat Baik")
