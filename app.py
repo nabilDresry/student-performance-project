@@ -2,9 +2,9 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# =========================
+# =====================================
 # KONFIGURASI HALAMAN
-# =========================
+# =====================================
 
 st.set_page_config(
     page_title="Prediksi Prestasi Akademik Siswa",
@@ -12,64 +12,68 @@ st.set_page_config(
     layout="wide"
 )
 
-# =========================
+# =====================================
 # LOAD MODEL
-# =========================
+# =====================================
 
 model = pickle.load(open("model.pkl", "rb"))
 scaler = pickle.load(open("scaler.pkl", "rb"))
 
-# =========================
+# =====================================
 # HEADER
-# =========================
+# =====================================
 
 st.title("🎓 Prediksi Prestasi Akademik Siswa")
+
 st.markdown("""
-Aplikasi ini memprediksi **GPA siswa** berdasarkan faktor akademik
-dan aktivitas non-akademik menggunakan metode **Supervised Learning**.
+### Berdasarkan Faktor Akademik dan Aktivitas Non-Akademik Menggunakan Metode Supervised Learning
+
+Aplikasi ini digunakan untuk memprediksi GPA siswa berdasarkan karakteristik akademik dan aktivitas pendukung.
 """)
 
 st.divider()
 
-# =========================
+# =====================================
 # INPUT DATA
-# =========================
+# =====================================
 
 col1, col2 = st.columns(2)
 
 with col1:
+
     st.subheader("📚 Faktor Akademik")
 
     age = st.slider(
         "Usia Siswa",
-        min_value=15,
-        max_value=25,
-        value=17
+        15,
+        25,
+        17
     )
 
     study_time = st.slider(
         "Jam Belajar per Minggu",
-        min_value=0,
-        max_value=40,
-        value=10
+        0,
+        40,
+        10
     )
 
     absences = st.slider(
         "Jumlah Ketidakhadiran",
-        min_value=0,
-        max_value=30,
-        value=5
+        0,
+        30,
+        5
     )
-
-with col2:
-    st.subheader("⭐ Faktor Pendukung")
 
     parental_support = st.slider(
         "Dukungan Orang Tua",
-        min_value=0,
-        max_value=4,
-        value=2
+        0,
+        4,
+        2
     )
+
+with col2:
+
+    st.subheader("⭐ Aktivitas Non-Akademik")
 
     extracurricular = st.checkbox("Mengikuti Ekstrakurikuler")
 
@@ -79,9 +83,9 @@ with col2:
 
     volunteering = st.checkbox("Mengikuti Kegiatan Sosial")
 
-# =========================
+# =====================================
 # FEATURE ENGINEERING
-# =========================
+# =====================================
 
 activity_score = (
     int(extracurricular)
@@ -90,43 +94,69 @@ activity_score = (
     + int(volunteering)
 )
 
-academic_engagement = (
-    study_time / (absences + 1)
+study_efficiency = (
+    study_time /
+    (absences + 1)
 )
 
-# =========================
-# TAMPILKAN FITUR HASIL
-# =========================
+support_activity = (
+    parental_support *
+    activity_score
+)
+
+academic_engagement = (
+    study_time +
+    parental_support
+) / (absences + 1)
+
+# =====================================
+# HASIL FEATURE ENGINEERING
+# =====================================
 
 st.divider()
 
 st.subheader("📊 Hasil Feature Engineering")
 
-c1, c2 = st.columns(2)
+c1, c2, c3, c4 = st.columns(4)
 
 c1.metric(
-    "Academic Engagement",
-    f"{academic_engagement:.2f}"
-)
-
-c2.metric(
     "Activity Score",
     activity_score
 )
 
-# =========================
-# PREDIKSI
-# =========================
+c2.metric(
+    "Study Efficiency",
+    f"{study_efficiency:.2f}"
+)
 
-if st.button("🔍 Prediksi GPA", use_container_width=True):
+c3.metric(
+    "Support Activity",
+    support_activity
+)
+
+c4.metric(
+    "Academic Engagement",
+    f"{academic_engagement:.2f}"
+)
+
+# =====================================
+# PREDIKSI
+# =====================================
+
+if st.button(
+    "🔍 Prediksi GPA",
+    use_container_width=True
+):
 
     data = np.array([
         age,
         study_time,
         absences,
         parental_support,
-        academic_engagement,
-        activity_score
+        activity_score,
+        study_efficiency,
+        support_activity,
+        academic_engagement
     ]).reshape(1, -1)
 
     data = scaler.transform(data)
@@ -135,46 +165,94 @@ if st.button("🔍 Prediksi GPA", use_container_width=True):
 
     gpa = float(prediksi[0])
 
+    # Membatasi GPA
+    gpa = max(0.0, min(4.0, gpa))
+
     st.divider()
 
     st.subheader("🎯 Hasil Prediksi")
 
     st.metric(
-        "Prediksi GPA",
-        f"{gpa:.2f}"
+        label="Prediksi GPA",
+        value=f"{gpa:.2f}"
     )
 
     st.progress(
         min(gpa / 4.0, 1.0)
     )
 
-    if gpa >= 3.5:
-        st.success("🏆 Kategori Prestasi: Sangat Baik")
+    st.write(
+        f"Persentase terhadap GPA maksimum: {(gpa/4)*100:.1f}%"
+    )
+
+    if gpa >= 3.50:
+
+        st.success(
+            "🏆 Prestasi Sangat Baik"
+        )
+
         st.balloons()
 
-    elif gpa >= 3.0:
-        st.info("📘 Kategori Prestasi: Baik")
+    elif gpa >= 3.00:
 
-    elif gpa >= 2.0:
-        st.warning("📙 Kategori Prestasi: Cukup")
+        st.info(
+            "📘 Prestasi Baik"
+        )
+
+    elif gpa >= 2.00:
+
+        st.warning(
+            "📙 Prestasi Cukup"
+        )
 
     else:
-        st.error("📕 Kategori Prestasi: Perlu Pendampingan")
 
-# =========================
-# INFORMASI MODEL
-# =========================
+        st.error(
+            "📕 Perlu Pendampingan Belajar"
+        )
+
+# =====================================
+# SIDEBAR
+# =====================================
 
 st.sidebar.header("📈 Informasi Model")
 
-st.sidebar.write(
-    "Model digunakan untuk memprediksi GPA siswa berdasarkan faktor akademik dan aktivitas non-akademik."
+st.sidebar.success(
+    "Model: Random Forest Regression"
 )
 
-st.sidebar.success("Model: Random Forest Regression")
+st.sidebar.write(
+    "Target Prediksi: GPA"
+)
 
-# GANTI DENGAN HASIL EVALUASI DARI COLAB
-st.sidebar.write("R² Score : 0.67")
-st.sidebar.write("MAE : 0.34")
-st.sidebar.write("RMSE : 0.61")
-st.sidebar.write("MSE : 0.37")
+st.sidebar.write(
+    "Jumlah Fitur: 8"
+)
+
+st.sidebar.divider()
+
+st.sidebar.subheader(
+    "Performa Model"
+)
+
+# GANTI DENGAN HASIL DARI COLAB
+st.sidebar.metric(
+    "R² Score",
+    "ISI_R2"
+)
+
+st.sidebar.metric(
+    "MAE",
+    "ISI_MAE"
+)
+
+st.sidebar.metric(
+    "RMSE",
+    "ISI_RMSE"
+)
+
+st.sidebar.divider()
+
+st.sidebar.info(
+    "Dibangun menggunakan Python, Scikit-Learn, Streamlit, dan Random Forest Regression."
+)
