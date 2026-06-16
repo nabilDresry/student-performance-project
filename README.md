@@ -213,8 +213,7 @@ Universitas : Telkom University
 
 GitHub Repository:
 
-[[Tambahkan Link Repository GitHub]
-](https://github.com/nabilDresry/student-performance-project)
+(https://github.com/nabilDresry/student-performance-project)
 
 Streamlit Application:
 
