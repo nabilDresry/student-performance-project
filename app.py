@@ -1,5 +1,5 @@
 import streamlit as st
-import pickle
+import joblib
 import numpy as np
 
 # =====================================
@@ -16,8 +16,8 @@ st.set_page_config(
 # LOAD MODEL
 # =====================================
 
-model = pickle.load(open("model.pkl", "rb"))
-scaler = pickle.load(open("scaler.pkl", "rb"))
+model = joblib.load("model.pkl")
+scaler = joblib.load("scaler.pkl")
 
 # =====================================
 # HEADER
