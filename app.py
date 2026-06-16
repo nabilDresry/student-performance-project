@@ -2,91 +2,32 @@ import streamlit as st
 import pickle
 import numpy as np
 
-# =====================================
-# KONFIGURASI HALAMAN
-# =====================================
-
 st.set_page_config(
     page_title="Prediksi Prestasi Akademik Siswa",
     page_icon="🎓",
     layout="wide"
 )
 
-# =====================================
-# LOAD MODEL
-# =====================================
-
 try:
-    with open("model.pkl","rb") as f:
+    with open("model.pkl", "rb") as f:
         model = pickle.load(f)
 
-    with open("scaler.pkl","rb") as f:
+    with open("scaler.pkl", "rb") as f:
         scaler = pickle.load(f)
 
 except Exception as e:
-    st.error(f"Model gagal dimuat: {e}")
+    st.error(f"Gagal memuat model: {e}")
     st.stop()
 
-# =====================================
-# CUSTOM CSS
-# =====================================
-
 st.markdown("""
-<style>
-.main {
-    padding-top: 1rem;
-}
+# 🎓 Prediksi Prestasi Akademik Siswa
 
-.big-font {
-    font-size:35px !important;
-    font-weight:bold;
-    text-align:center;
-}
-
-.result-box {
-    padding:20px;
-    border-radius:15px;
-    background-color:#1e293b;
-    text-align:center;
-}
-
-.metric-card {
-    padding:15px;
-    border-radius:10px;
-    background-color:#111827;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# =====================================
-# HEADER
-# =====================================
-
-st.markdown(
-    "<p class='big-font'>🎓 Prediksi Prestasi Akademik Siswa</p>",
-    unsafe_allow_html=True
-)
-
-st.markdown("""
-### Berdasarkan Faktor Akademik dan Aktivitas Non-Akademik Menggunakan Metode Supervised Learning
-
-Aplikasi ini memprediksi **GPA siswa**
-berdasarkan faktor akademik serta aktivitas
-non-akademik menggunakan model
-**Random Forest Regression**.
+Prediksi GPA berdasarkan faktor akademik dan aktivitas non-akademik menggunakan Random Forest Regression.
 """)
 
-st.divider()
+col1, col2 = st.columns(2)
 
-# =====================================
-# INPUT
-# =====================================
-
-left, right = st.columns(2)
-
-with left:
-
-    st.subheader("📚 Faktor Akademik")
+with col1:
 
     age = st.slider(
         "Usia",
@@ -116,9 +57,7 @@ with left:
         2
     )
 
-with right:
-
-    st.subheader("⭐ Aktivitas Non-Akademik")
+with col2:
 
     extracurricular = st.checkbox(
         "Ekstrakurikuler"
@@ -136,10 +75,6 @@ with right:
         "Volunteering"
     )
 
-# =====================================
-# FEATURE ENGINEERING
-# =====================================
-
 activity_score = (
     int(extracurricular)
     + int(sports)
@@ -148,60 +83,34 @@ activity_score = (
 )
 
 study_efficiency = (
-    study_time /
-    (absences + 1)
+    study_time / (absences + 1)
 )
 
 support_activity = (
-    parental_support *
-    activity_score
+    parental_support * activity_score
 )
 
 academic_engagement = (
-    study_time +
-    parental_support
+    study_time + parental_support
 ) / (absences + 1)
 
-# =====================================
-# FEATURE RESULT
-# =====================================
+st.subheader("Hasil Feature Engineering")
 
-st.divider()
-
-st.subheader("📊 Hasil Feature Engineering")
-
-c1, c2, c3, c4 = st.columns(4)
-
-c1.metric(
-    "Activity Score",
-    activity_score
+st.write(
+    {
+        "Activity Score": activity_score,
+        "Study Efficiency": round(study_efficiency, 2),
+        "Support Activity": support_activity,
+        "Academic Engagement": round(
+            academic_engagement,
+            2
+        )
+    }
 )
 
-c2.metric(
-    "Study Efficiency",
-    round(study_efficiency, 2)
-)
+if st.button("Prediksi GPA"):
 
-c3.metric(
-    "Support Activity",
-    support_activity
-)
-
-c4.metric(
-    "Academic Engagement",
-    round(academic_engagement, 2)
-)
-
-# =====================================
-# PREDIKSI
-# =====================================
-
-if st.button(
-    "🔍 Prediksi Prestasi Akademik",
-    use_container_width=True
-):
-
-    data = np.array([
+    fitur = np.array([
         age,
         study_time,
         absences,
@@ -212,95 +121,53 @@ if st.button(
         academic_engagement
     ]).reshape(1, -1)
 
-    data = scaler.transform(data)
+    fitur = scaler.transform(fitur)
 
-    prediction = model.predict(data)
+    hasil = model.predict(fitur)
 
-    gpa = float(prediction[0])
+    gpa = float(hasil[0])
 
-    gpa = max(0.0, min(4.0, gpa))
+    if gpa < 0:
+        gpa = 0
 
-    st.divider()
+    if gpa > 4:
+        gpa = 4
 
-    st.subheader("🎯 Hasil Prediksi")
-
-    st.metric(
-        "Prediksi GPA",
-        f"{gpa:.2f}"
+    st.success(
+        f"Prediksi GPA: {gpa:.2f}"
     )
 
-    st.progress(gpa / 4)
-
-    if gpa >= 3.50:
-
+    if gpa >= 3.5:
         st.success(
-            "🏆 Prestasi Akademik Sangat Baik"
+            "🏆 Prestasi Sangat Baik"
         )
 
-        st.balloons()
-
-    elif gpa >= 3.00:
-
+    elif gpa >= 3:
         st.info(
-            "📘 Prestasi Akademik Baik"
+            "📘 Prestasi Baik"
         )
 
-    elif gpa >= 2.00:
-
+    elif gpa >= 2:
         st.warning(
-            "📙 Prestasi Akademik Cukup"
+            "📙 Prestasi Cukup"
         )
 
     else:
-
         st.error(
-            "📕 Perlu Peningkatan Prestasi Akademik"
+            "📕 Perlu Pendampingan Belajar"
         )
 
-# =====================================
-# SIDEBAR
-# =====================================
+st.sidebar.title("Informasi Model")
 
-st.sidebar.title("📈 Informasi Model")
-
-st.sidebar.success(
-    "Random Forest Regression"
+st.sidebar.write(
+    "Model: Random Forest Regressor"
 )
 
 st.sidebar.write(
-    "Target Prediksi : GPA"
+    "Jumlah Fitur: 8"
 )
 
 st.sidebar.write(
-    "Jumlah Fitur : 8"
+    "Target: GPA"
 )
 
-st.sidebar.divider()
-
-st.sidebar.subheader(
-    "Performa Model"
-)
-
-# GANTI DENGAN HASIL DARI COLAB
-st.sidebar.metric(
-    "R² Score",
-    "0.92"
-)
-
-st.sidebar.metric(
-    "MAE",
-    "0.20"
-)
-
-st.sidebar.metric(
-    "RMSE",
-    "0.25"
-)
-
-st.sidebar.divider()
-
-st.sidebar.info("""
-Judul Proyek:
-
-Prediksi Prestasi Akademik Siswa Berdasarkan Faktor Akademik dan Aktivitas Non-Akademik Menggunakan Metode Supervised Learning
-""")
