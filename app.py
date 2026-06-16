@@ -90,3 +90,11 @@ if st.button("🔍 Prediksi GPA", use_container_width=True):
         st.warning("Kategori: Prestasi Cukup")
     else:
         st.error("Kategori: Perlu Pendampingan Belajar")
+
+st.sidebar.header("📊 Performa Model")
+
+st.sidebar.success("Model: Random Forest Regression")
+
+st.sidebar.write("R² Score : 0.87")
+st.sidebar.write("MAE : 0.15")
+st.sidebar.write("RMSE : 0.22")
