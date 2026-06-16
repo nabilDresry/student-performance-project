@@ -17,10 +17,14 @@ st.set_page_config(
 # =====================================
 
 try:
-    model = pickle.load(open("model.pkl", "rb"))
-scaler = pickle.load(open("scaler.pkl", "rb"))
+    with open("model.pkl","rb") as f:
+        model = pickle.load(f)
+
+    with open("scaler.pkl","rb") as f:
+        scaler = pickle.load(f)
+
 except Exception as e:
-    st.error(f"Gagal memuat model: {e}")
+    st.error(f"Model gagal dimuat: {e}")
     st.stop()
 
 # =====================================
