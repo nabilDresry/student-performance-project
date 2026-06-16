@@ -1,5 +1,5 @@
 import streamlit as st
-import joblib
+import pickle
 import numpy as np
 
 # =====================================
@@ -17,8 +17,8 @@ st.set_page_config(
 # =====================================
 
 try:
-    model = joblib.load("model.pkl")
-    scaler = joblib.load("scaler.pkl")
+    model = pickle.load(open("model.pkl", "rb"))
+scaler = pickle.load(open("scaler.pkl", "rb"))
 except Exception as e:
     st.error(f"Gagal memuat model: {e}")
     st.stop()
